@@ -1,0 +1,37 @@
+<header class="border shadow-md fixed sm:relative sm:flex shadow-lg w-full px-5 justify-between p-4 sm:shadow-none sm:items-center z-40 bg-white"
+  x-data="{ menuOpen: false }"
+>
+  <div class="flex justify-between bg-white">
+    
+    <div class="flex">
+      <div>Mes recettes</div>
+    </div>
+
+    <div
+      class="flex space-x-2 sm:hidden cursor-pointer"
+      @click="menuOpen = !menuOpen"
+    >
+
+      <div>Menu</div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 ">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
+        </svg>
+    </div>
+  </div>
+
+  <div
+    class="transition-all absolute sm:relative top-[60px] sm:top-0 w-full sm:w-auto bg-white"
+    :class="{
+      'translate-y-0 opacity-100 pointer-events-auto': menuOpen || window.innerWidth >= 768,
+      '-translate-y-full opacity-0 pointer-events-none': !menuOpen && window.innerWidth < 768
+    }"
+  >
+  
+    <ul class="flex flex-col sm:flex-row gap-2 py-2 text-xl sm:text-base text-center sm:gap-6">
+      <li><a href="#" class="hover:underline">Accueil</a></li>
+      <li><a href="#" class="hover:underline">A propos</a></li>
+      <li><a href="#" class="hover:underline">Les recettes</a></li>
+      <li><a href="#" class="hover:underline">Contact</a></li>
+    </ul>
+  </div>
+</header>

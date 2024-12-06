@@ -1,0 +1,139 @@
+<div class="py-10 px-5"
+x-data="{
+   recipes: [], 
+   filteredRecipes: [],
+   loading: true,
+   selectDifficult: '',
+   selectionRecipe: null,
+   search: '',
+   fetchRecipes() {
+       fetch('./src/data/recipes.json')
+           .then(response => response.json())
+           .then(data => {
+               this.recipes = data.recipes;
+               this.filteredRecipes = this.recipes; 
+               this.loading = false;
+           })
+   },
+   filtreRecipes() {
+       let filtered = this.recipes;
+       if (this.selectDifficult) {
+           filtered = filtered.filter(recipe => recipe.difficulty === this.selectDifficult);
+       }
+       if (this.search) {
+           filtered = filtered.filter(recipe => recipe.title.toLowerCase().includes(this.search.toLowerCase()));
+       }
+       this.filteredRecipes = filtered;
+   },
+   selectRecipe(recipe) {
+    this.selectionRecipe = recipe; 
+}
+}"
+x-init="fetchRecipes()"
+x-effect="filtreRecipes()"
+>
+
+<template x-if="!loading && recipes.length > 0">
+   <div>
+       <div class="pt-10 pb-5 md:pt-0 md:pb-0">
+           <p>Nombre de recettes :  <span x-text="filteredRecipes.length"></span></p>
+       </div>
+
+       <!-- barre de recherche -->
+        <div class="flex justify-center">
+            <input type="text" x-model="search" class="px-4 py-2 border rounded-md" placeholder="Rechercher une recette..." />
+        </div>
+
+        <!-- filtre par difficulté -->
+       <div class="my-4">
+           <label for="difficulty" class="mr-2">Filtrer par difficulté :</label>
+           <select id="difficulty" x-model="selectDifficult" @change="filtreRecipes" class="p-2 border rounded">
+               <option value="">Tout</option>
+               <option value="facile">Facile</option>
+               <option value="intermediaire">Intermédiaire</option>
+               <option value="difficile">Difficile</option>
+           </select>
+       </div>
+
+       <!-- affichage des recettes -->
+       <div class="grid grid-cols-1 gap-6 md:grid-cols-3 sm:grid-cols-2 gap-4 py-6 items-center md:px-40">
+           <template x-for="recipe in filteredRecipes" :key="recipe.id">
+
+               <div class="relative border p-6 rounded-lg shadow-md" @click="selectRecipe(recipe)">
+
+                   <h3 class="text-lg font-semibold text-center pb-40" x-text="recipe.title"></h3>
+
+                   <p class="absolute text-sm bottom-0 left-0 p-2 text-sm">
+                       Temps de préparation : <span x-text="recipe.preparationTime"></span> min</p>
+
+                   <p class="absolute text-sm bottom-0 left-0 p-2 pb-8">
+                       Catégorie : <span x-text="recipe.category"></span></p>
+
+                   <p class="absolute text-sm bottom-0 right-0 p-2">
+                       Difficulté : <span x-text="recipe.difficulty"></span>
+                   </p>
+
+                   <img class="absolute top-0 left-0 right-0 bottom-0 m-auto h-[50%] object-cover"
+                   :src="recipe.imageUrl" alt="Image description">
+
+               </div>
+           </template>
+       </div>
+       
+
+       <!-- affichage detailler des recettes -->
+    <div x-show="selectionRecipe" x-transition 
+        class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+        
+        <div class="relative bg-white p-6 rounded-lg md:w-1/2 w-5/6" >
+
+            <button @click="selectionRecipe = null" class="absolute top-0 right-0 py-1 px-2 text-white bg-red-500 rounded">X</button>
+            <h2 class="text-2xl" x-text="selectionRecipe.title"></h2>
+            <p class="py-2" x-text="selectionRecipe.description"></p>
+
+            <h3 class="text-xl">Ingrédients :</h3>
+            <ul class="py-2 list-disc ml-5">
+                <template x-for="ingredient in selectionRecipe.ingredients">
+                    <li>
+                        <span x-text="ingredient.name"></span>
+                        <span x-text="ingredient.quantity"></span> 
+                        <span x-text="ingredient.unit"></span>
+                    </li>
+                </template>
+            </ul>
+
+            <h3 class="text-xl">Instructions :</h3>
+            <div x-data="{ currentStep: 0 }"
+                x-effect="currentStep = 0; if (!selectionRecipe) currentStep = 0;">    
+                                
+                <p class="mt-2" x-text="(currentStep + 1) + '. ' + selectionRecipe.instructions[currentStep]"></p>
+                    <button 
+                        @click="currentStep = Math.max(0, currentStep - 1)" 
+                        :disabled="currentStep === 0"
+                        class="py-2 my-4 px-4 bg-blue-500 text-white rounded disabled:opacity-50"
+                    >
+                    Précédent
+                    </button>
+                    <button 
+                        @click="currentStep++" 
+                        :disabled="currentStep >= selectionRecipe.instructions.length - 1"
+                        class="py-2 my-4 px-4 bg-blue-500 text-white rounded disabled:opacity-50"
+                    >
+                    Suivant
+                    </button>
+            </div>
+                <div class="absolute bottom-7 right-7 w-1/2 md:block hidden">
+                    <img :src="selectionRecipe.imageUrl" alt="Image de la recette" class="rounded shadow-md w-full max-h-[300px] ">
+                </div>
+    </div>
+</div>
+
+  
+</div>
+</template>
+
+<template x-if="!loading && filteredRecipes.length === 0">
+   <p>Aucune recette disponible</p>
+</template>
+
+</div>
